@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Una pregunta especial ❤️</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 50%, #ddd6fe 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+            padding: 20px 0;
+        }
+
+        /* Floating hearts background animation */
+        .heart-bg {
+            position: fixed;
+            font-size: 30px;
+            opacity: 0.15;
+            animation: float 15s infinite ease-in-out;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .heart-bg:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+        .heart-bg:nth-child(2) { left: 80%; top: 40%; animation-delay: 2s; }
+        .heart-bg:nth-child(3) { left: 20%; top: 70%; animation-delay: 4s; }
+        .heart-bg:nth-child(4) { left: 70%; top: 10%; animation-delay: 6s; }
+        .heart-bg:nth-child(5) { left: 50%; top: 80%; animation-delay: 8s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(168, 85, 247, 0.3);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .emoji-heart {
+            font-size: 80px;
+            animation: heartbeat 1.5s infinite;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            10%, 30% { transform: scale(1.1); }
+            20%, 40% { transform: scale(0.95); }
+        }
+
+        h1 {
+            color: #9333ea;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .subtitle {
+            color: #a855f7;
+            font-size: 16px;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            padding: 150px 0; /* Espacio para que el botón No se mueva */
+        }
+
+        .btn {
+            font-family: 'Poppins', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            padding: 18px 50px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            position: relative;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-yes {
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+            color: white;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .btn-yes:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(168, 85, 247, 0.4);
+        }
+
+        .btn-yes:active {
+            transform: translateY(-2px);
+        }
+
+        .btn-no {
+            background: linear-gradient(135deg, #e0e0e0 0%, #cccccc 100%);
+            color: #666;
+            position: absolute;
+            transition: all 0.15s ease;
+            z-index: 15; /* Mayor que el botón Sí para que nunca se oculte */
+        }
+
+        .btn-no:hover {
+            background: linear-gradient(135deg, #d0d0d0 0%, #bbbbbb 100%);
+        }
+
+        .success-message {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            border-radius: 20px;
+            border-left: 5px solid #9333ea;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-message h2 {
+            color: #9333ea;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .success-message p {
+            color: #a855f7;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* Sad cat meme container */
+        .sad-cat-container {
+            margin-top: 20px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .sad-cat-container.show {
+            display: block;
+            opacity: 1;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .sad-cat-container img {
+            max-width: 100%;
+            width: 250px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin: 0 auto;
+            display: block;
+        }
+
+        .sad-cat-container p {
+            color: #9333ea;
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        /* Success gif container */
+        .success-gif-container {
+            margin-top: 5px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .success-gif-container.show {
+            display: block;
+            opacity: 1;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .success-gif-container img {
+            max-width: 100%;
+            width: 300px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4);
+            margin: 0 auto;
+            display: block;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .emoji-heart {
+                font-size: 60px;
+            }
+
+            .btn {
+                font-size: 18px;
+                padding: 15px 40px;
+            }
+
+            .sad-cat-container img {
+                width: 200px;
+            }
+
+            .success-gif-container img {
+                width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating hearts background -->
+    <div class="heart-bg">💕</div>
+    <div class="heart-bg">❤️</div>
+    <div class="heart-bg">💖</div>
+    <div class="heart-bg">💗</div>
+    <div class="heart-bg">💝</div>
+
+    <div class="container">
+        <div class="emoji-heart">🎬</div>
+        <h1>¿Quieres ir al cine conmigo? 🍿</h1>
+        <p class="subtitle">Tengo ganas de pasar tiempo contigo ❤️</p>
+        
+        <div class="buttons-container" id="buttonsContainer">
+            <button class="btn btn-yes" id="btnYes">¡Sí! 💕</button>
+            <button class="btn btn-no" id="btnNo">No 😢</button>
+        </div>
+
+        <!-- Sad cat meme container -->
+        <div class="sad-cat-container" id="sadCatContainer">
+            <img id="sadCatImage" src="" alt="Gato triste">
+            <p id="sadCatText">😿</p>
+        </div>
+
+        <!-- Success gif container -->
+        <div class="success-gif-container" id="successGifContainer">
+            <img src="gid.gif" alt="¡Sí!" class="success-gif">
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <h2>¡Sabía que dirías que sí! ❤️</h2>
+            <p>¡Te quiero mucho! � ansiaba salir contigo 🎬🍿✨</p>
+        </div>
+    </div>
+
+    <script>
+        // Variables
+        const btnYes = document.getElementById('btnYes');
+        const btnNo = document.getElementById('btnNo');
+        const successMessage = document.getElementById('successMessage');
+        const buttonsContainer = document.getElementById('buttonsContainer');
+        const sadCatContainer = document.getElementById('sadCatContainer');
+        const sadCatImage = document.getElementById('sadCatImage');
+        const sadCatText = document.getElementById('sadCatText');
+        const successGifContainer = document.getElementById('successGifContainer');
+        
+        let noClickCount = 0;
+        let currentYesScale = 1;
+        
+        const noButtonTexts = [
+            "¿Estás segura? 🤔",
+            "¡Te equivocaste! 😅",
+            "¡Ese no es! 👀",
+            "Me vas a romper el corazón 💔",
+            "Piénsalo mejor 🥺",
+            "¡Dale a SÍ! 😊",
+            "No puede ser... 😢",
+            "¡Anda, di que sí! 💕"
+        ];
+
+        // Array de memes de gatos tristes
+        const sadCatMemes = [
+            { image: 'sad-cat-1.jpg', text: 'Me vas a romper el corazón... 💔😿' },
+            { image: 'sad-cat-2.png', text: '¿Por qué me haces esto? 😭' },
+            { image: 'sad-cat-3.jpg', text: 'Estoy muy triste ahora... 🥺' },
+            // Después de las 3 imágenes, solo textos
+            { image: null, text: 'Cada "No" me duele más... 😢💔' },
+            { image: null, text: 'Solo quiero salir contigo... 🎬🥺' },
+            { image: null, text: 'Por favor di que sí... 🙏😿' },
+            { image: null, text: 'Prometo comprar doritos y cocacola... 🍿😢' },
+            { image: null, text: 'No me hagas esto... 💔😭' },
+            { image: null, text: 'El botón de "Sí" te está esperando... 💕' }
+        ];
+        
+        let sadCatShowCount = 0;
+
+        // Función para mostrar meme de gato triste aleatorio
+        function showSadCat() {
+            // Obtener el mensaje actual basado en el contador
+            const currentMeme = sadCatMemes[sadCatShowCount % sadCatMemes.length];
+            
+            // Si hay imagen, mostrarla
+            if (currentMeme.image) {
+                sadCatImage.src = currentMeme.image;
+                sadCatImage.style.display = 'block';
+            } else {
+                // Si no hay imagen, ocultarla
+                sadCatImage.style.display = 'none';
+            }
+            
+            sadCatText.textContent = currentMeme.text;
+            
+            // Incrementar contador para el próximo mensaje
+            sadCatShowCount++;
+            
+            // Ocultar si ya estaba visible
+            sadCatContainer.classList.remove('show');
+            
+            // Mostrar con animación
+            setTimeout(() => {
+                sadCatContainer.classList.add('show');
+            }, 50);
+            
+            // Ocultar después de 5 segundos (más tiempo para leer)
+            setTimeout(() => {
+                sadCatContainer.classList.remove('show');
+            }, 5000);
+        }
+
+        // Función para lanzar confeti
+        function launchConfetti() {
+            const duration = 3000;
+            const end = Date.now() + duration;
+
+            const colors = ['#a855f7', '#9333ea', '#c084fc', '#d8b4fe', '#ffffff'];
+
+            (function frame() {
+                confetti({
+                    particleCount: 3,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: colors
+                });
+                confetti({
+                    particleCount: 3,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: colors
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+
+            // Confeti extra en el centro
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: colors
+            });
+        }
+
+        // Evento click en botón SÍ
+        btnYes.addEventListener('click', function() {
+            // Ocultar botones
+            btnYes.style.display = 'none';
+            btnNo.style.display = 'none';
+            
+            // Quitar el padding del contenedor para eliminar espacio vacío
+            buttonsContainer.style.padding = '0';
+            
+            // Ocultar meme de gato si está visible
+            sadCatContainer.classList.remove('show');
+            
+            // Mostrar gif de éxito
+            successGifContainer.classList.add('show');
+            
+            // Mostrar mensaje de éxito
+            successMessage.classList.add('show');
+            
+            // Lanzar confeti
+            launchConfetti();
+        });
+
+        // Función para mover el botón NO a una posición aleatoria
+        function moveNoButton() {
+            const containerRect = buttonsContainer.getBoundingClientRect();
+            const btnNoRect = btnNo.getBoundingClientRect();
+            
+            // Usar TODO el espacio disponible del contenedor
+            const margin = 5;
+            const maxX = Math.max(containerRect.width - btnNoRect.width - margin, 0);
+            const maxY = Math.max(containerRect.height - btnNoRect.height - margin, 0);
+            
+            // Generar posición completamente aleatoria en todo el rango
+            const randomX = Math.random() * maxX;
+            const randomY = Math.random() * maxY;
+            
+            // Aplicar posición con absolute
+            // El z-index: 15 asegura que siempre esté visible por encima del botón Sí
+            btnNo.style.position = 'absolute';
+            btnNo.style.left = randomX + 'px';
+            btnNo.style.top = randomY + 'px';
+            btnNo.style.display = 'block'; // Asegurar que esté visible
+            btnNo.style.visibility = 'visible'; // Asegurar visibilidad
+        }
+
+        // Evento hover en botón NO (desktop)
+        btnNo.addEventListener('mouseenter', function(e) {
+            e.preventDefault();
+            moveNoButton();
+            showSadCat();
+        });
+
+        // Evento touch en botón NO (móvil) - prevenir el click
+        btnNo.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            moveNoButton();
+            showSadCat();
+        });
+
+        // Evento click en botón NO (si logra darle click)
+        btnNo.addEventListener('click', function(e) {
+            e.preventDefault();
+            noClickCount++;
+            
+            // Cambiar texto del botón NO
+            const textIndex = Math.min(noClickCount - 1, noButtonTexts.length - 1);
+            btnNo.textContent = noButtonTexts[textIndex];
+            
+            // Mostrar meme de gato triste
+            showSadCat();
+            
+            // Mover el botón NO después de un breve momento
+            setTimeout(() => {
+                moveNoButton();
+            }, 100);
+        });
+
+        // Prevenir la selección del botón NO en móviles
+        btnNo.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Inicializar posición del botón NO
+        window.addEventListener('load', function() {
+            // Inicializar el botón NO en una posición segura desde el inicio
+            setTimeout(() => {
+                // Posicionar debajo del botón Sí con margen
+                btnNo.style.position = 'relative';
+                btnNo.style.top = '0';
+                btnNo.style.left = '0';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
