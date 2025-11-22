@@ -11,6 +11,9 @@
     <!-- Canvas Confetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     
+    <!-- SweetAlert2 Library -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <style>
         * {
             margin: 0;
@@ -329,6 +332,7 @@
         
         let noClickCount = 0;
         let currentYesScale = 1;
+        let hasInteractedWithNo = false; // Rastrear si ha interactuado con el botón NO
         
         const noButtonTexts = [
             "¿Estás segura? 🤔",
@@ -429,6 +433,20 @@
 
         // Evento click en botón SÍ
         btnYes.addEventListener('click', function() {
+            // Verificar si ha interactuado con el botón NO primero
+            if (!hasInteractedWithNo) {
+                // Mostrar alerta divertida pidiendo que pruebe el botón NO primero
+                Swal.fire({
+                    title: '¡Ey, no tan rápido! 😏',
+                    text: '¡No seas aguafiestas! Intenta darle al "No" primero... te reto 😈',
+                    icon: 'warning',
+                    confirmButtonText: 'Ok, lo intentaré 😅',
+                    confirmButtonColor: '#9333ea',
+                    backdrop: 'rgba(168, 85, 247, 0.2)'
+                });
+                return; // No continuar con el proceso de aceptación
+            }
+            
             // Ocultar botones
             btnYes.style.display = 'none';
             btnNo.style.display = 'none';
@@ -475,6 +493,7 @@
         // Evento hover en botón NO (desktop)
         btnNo.addEventListener('mouseenter', function(e) {
             e.preventDefault();
+            hasInteractedWithNo = true; // Marcar que ha interactuado
             moveNoButton();
             showSadCat();
         });
@@ -482,6 +501,7 @@
         // Evento touch en botón NO (móvil) - prevenir el click
         btnNo.addEventListener('touchstart', function(e) {
             e.preventDefault();
+            hasInteractedWithNo = true; // Marcar que ha interactuado
             moveNoButton();
             showSadCat();
         });
@@ -489,6 +509,7 @@
         // Evento click en botón NO (si logra darle click)
         btnNo.addEventListener('click', function(e) {
             e.preventDefault();
+            hasInteractedWithNo = true; // Marcar que ha interactuado
             noClickCount++;
             
             // Cambiar texto del botón NO
@@ -522,5 +543,3 @@
     </script>
 </body>
 </html>
-
-
